@@ -30,8 +30,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **인쇄 스타일**: `input.css`의 `@media print`와 마크업의 `print:hidden`을 함께 사용합니다.
 - **샘플 데이터**: 이름, URL(`example`), 연락처는 모두 더미입니다. Hero의 `assets/resume.pdf` 링크는 파일이 아직 없습니다.
 
+## todo/ 아키텍처 (React + Vite + json-server)
+
+- **구조**: `src/api/`(fetch 래퍼, `client.js`의 `API_URL`이 유일한 기본 URL) → `src/hooks/`(`useTodos`, `useCategories`, `useTheme`) → `src/components/`. 컴포넌트에서 `fetch`를 직접 호출하지 않습니다. 필터·정렬·날짜 계산은 `src/utils/`의 순수 함수입니다.
+- **실행**: `todo/`에서 `npm run dev:all`(Vite 5173 + json-server 3001 동시 실행). API만 띄우려면 `npm run api`. 검증 도구가 없으므로 `npm run build` 통과와 브라우저 동작 확인으로 검증합니다.
+- **json-server는 v1 베타**: `id`는 서버가 만드는 문자열이고, 쓸 때마다 `db.json`에 `$schema` 키를 추가합니다. 테스트로 `db.json`이 바뀌면 시드 데이터로 되돌리고 커밋합니다.
+- **`vite.config.js`의 `server.watch.ignored: ["**/db.json"]`을 지우지 마세요**: 없으면 API가 `db.json`에 쓸 때마다 Vite가 페이지를 새로고침해 입력 중인 폼과 요청 흐름이 끊깁니다.
+- **낙관적 업데이트**: `useTodos`의 수정·삭제는 화면을 먼저 바꾸고 실패하면 이전 값으로 되돌립니다. 추가는 서버가 id를 만들어야 하므로 응답 후 반영합니다.
+- **카테고리 삭제**: json-server는 연쇄 처리를 하지 않으므로 `unassignCategory`로 소속 할 일을 `categoryId: null`로 바꾼 뒤(모두 성공해야) 카테고리를 삭제합니다.
+- **Tailwind 클래스는 전체 문자열로 작성**: `utils/colors.js`처럼 클래스 이름을 동적으로 조합하지 않습니다(스캔되지 않음).
+- **날짜는 `YYYY-MM-DD` 문자열**: `toISOString()`은 UTC라 자정 무렵 하루가 어긋나므로 `utils/date.js`의 `todayString()`(로컬 기준)을 씁니다.
+
 ## 작업 시 주의사항
 
+- **계획서는 `.claude/plans/`에 저장하고, 파일명은 대상 폴더명으로 짓습니다.** (예: `.claude/plans/resume.md`, `.claude/plans/todo.md`) 저장 위치는 `.claude/settings.local.json`의 `plansDirectory`로 지정되어 있으며, 각 폴더 안에 `plan/` 폴더를 따로 만들지 않습니다. `roadmap.md`는 폴더 루트에 그대로 둡니다.
 - `resume/`에서 HTML/JS에 새 Tailwind 클래스를 추가하면 `npm run build`로 `dist/output.css`를 다시 생성해 함께 커밋합니다.
 - `resume/index.html`은 한 파일 안에서 `<!-- ==================== Hero ==================== -->` … `<!-- ==================== // Hero ==================== -->`처럼 시작/끝 주석으로 블록(Header, Hero, About 등)을 구분합니다. 새 섹션을 추가할 때도 같은 형식을 따릅니다.
 - `.claude/settings.local.json`(로컬 권한 설정)은 커밋하지 않습니다.

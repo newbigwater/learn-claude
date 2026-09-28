@@ -7,6 +7,7 @@ Claude Code를 학습하며 만든 결과물을 폴더 단위로 정리하는 �
 | 폴더 | 설명 |
 | --- | --- |
 | [`resume/`](./resume) | 개발자 웹 이력서 (HTML5 + TailwindCSS v4 + Vanilla JS 정적 페이지) |
+| [`todo/`](./todo) | Todo 앱 (React + Vite + TailwindCSS v4 + json-server). 핵심 기능 구현 완료, 반응형·접근성 등 일부 항목은 확인 필요 — [`roadmap.md`](./todo/roadmap.md) |
 
 > 새 폴더를 추가하면 위 표에 한 줄씩 추가합니다.
 
