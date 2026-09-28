@@ -42,3 +42,55 @@
 ## 검증
 - 파일 생성 후 Read로 내용 확인: 섹션 누락 없음, 한국어 작성, 체크리스트 마크다운 문법 정상
 - 작성 후 CLAUDE.md의 "프로젝트 현황"은 이번 범위 밖이므로 수정하지 않음
+
+---
+
+## 2026-09-28 요약본 PDF 다운로드 추가
+
+### Context
+Hero의 "이력서 PDF 다운로드" 버튼은 `assets/resume.pdf`를 가리키지만 파일이 없습니다. 참고 이미지(검정 배경, 흰 테두리 둥근 카드, 골드 강조, 가운데 원형 프로필)와 같은 스타일의 **A4 1장 요약본**을 만들고, 그 PDF를 이 버튼으로 내려받게 합니다.
+
+### 설계
+
+#### 1. 요약본 페이지 `resume/summary.html` (신규)
+- **독립 페이지**로 만들고 `dist/output.css`는 불러오지 않습니다. `input.css`의 `@media print`가 배경을 흰색으로 강제(`background:#fff !important`)해서 검정 디자인과 충돌하기 때문입니다. 스타일은 `<head>`의 인라인 `<style>`에 plain CSS로 씁니다.
+- 색은 `:root` 변수로 관리합니다(`--bg`, `--line` 흰색, `--accent` 골드, `--text`). 폰트는 `index.html`과 같은 Pretendard CDN 링크와 `--font-sans` 스택을 씁니다.
+- **A4 고정 크기**: `.sheet { width:210mm; height:297mm }`, `@page { size:A4; margin:0 }`, `print-color-adjust: exact`로 PDF에서도 검정 배경을 유지합니다. 화면에서는 회색 배경 가운데에 종이처럼 보이게 하고, 상단 도구 막대("이력서로 돌아가기", "PDF 다운로드")를 둡니다. 도구 막대는 `@media print`에서 숨깁니다.
+- **배경 질감**: 이미지의 대리석 느낌은 CSS 그라디언트(옅은 대각선 줄무늬)로 흉내 냅니다. 이미지 파일은 추가하지 않습니다.
+- **레이아웃과 내용 매핑**: 내용은 `index.html`의 더미 데이터만 씁니다. 새 사실은 만들지 않습니다. 제목은 이미지처럼 두 단어 색 분리(흰색 + 골드)로 합니다.
+
+| 이미지 | 요약본 | 출처 |
+| --- | --- | --- |
+| 이름/직무 + `</>` 모니터 아이콘 | **김**(흰색)**개발**(골드) / `FRONTEND DEVELOPER` 자간 넓게, 인라인 SVG 아이콘 | Hero |
+| EDUCATION · 원형 사진 · CONTACT | **학력** 샘플대학교 컴퓨터공학과 학사 2018.03 – 2022.02 / `assets/images/profile.svg` 원형(흰 테두리) / **연락처** 이메일, GitHub, 블로그, LinkedIn | Education, Contact, SNS |
+| ABOUT ME | **자기 소개** 문단 + 개발 철학 한 줄 | About |
+| INTEREST · 노트북 그림 · LANGUAGE SKILLS | **주요 성과** 3년+ / 12개 / 95+ · 노트북 인라인 SVG · **자격증** | About 통계, Certifications |
+| PERSONAL SKILLS | **기술 스택** Frontend / Backend / Tools 3열, 열마다 선 아이콘(SVG) | Skills |
+| WORK EXPERIENCE 2열 | **경력** 샘플테크(2024.03 – 현재) / 예시소프트(2022.01 – 2024.02) | Experience |
+
+- 카드는 `border:2px solid #fff; border-radius:24px`. 첫 줄의 두 카드는 가운데 원형 사진에 모서리가 가려지도록 사진을 `z-index`로 겹칩니다.
+- 새 파일에도 `<!-- ==================== Header ==================== -->` … `<!-- ==================== // Header ==================== -->` 형식의 블록 주석을 씁니다.
+- 대비: 보조 텍스트는 `#d4d4d4` 이상으로 해서 검정 배경에서 4.5:1 이상을 지킵니다. `lang="ko"`, 이미지 `alt`, `<meta name="robots" content="noindex">`를 넣습니다.
+
+#### 2. PDF 생성 (`resume/assets/resume.pdf`, 커밋 대상)
+- `package.json`에 `pdf` 스크립트를 추가합니다. macOS의 headless Chrome으로 `summary.html`을 `assets/resume.pdf`로 출력하며(`--no-pdf-header-footer`, `--virtual-time-budget=5000`으로 웹폰트·이미지 로드를 기다림), 텍스트를 선택할 수 있는 벡터 PDF가 됩니다. 브라우저 JS 라이브러리(html2pdf 등)는 쓰지 않습니다.
+- 결과가 정확히 A4 1쪽인지 확인합니다.
+
+#### 3. 연결 (`resume/index.html` Hero)
+- 기존 다운로드 링크를 `download="김개발_이력서_요약본.pdf"`가 있는 "요약본 PDF 다운로드"로 바꿉니다. "인쇄 / PDF 저장" 버튼(`#print-btn`)은 그대로 둡니다.
+- 새 Tailwind 클래스는 추가하지 않습니다. `src/input.css`에 `@source not "../summary.html";`를 넣어 요약본 페이지가 스캔되지 않게 하고, `npm run build`로 `dist/output.css`를 다시 생성합니다.
+
+#### 4. 문서 갱신
+- `CLAUDE.md` resume/ 아키텍처에 요약본 규칙을 추가합니다(독립 A4 페이지, Tailwind 미사용, `index.html` 내용을 바꾸면 `summary.html`도 맞추고 `npm run pdf`로 재생성해 커밋). "샘플 데이터"의 "`assets/resume.pdf` 파일이 아직 없습니다" 문구는 지웁니다.
+- `README.md` resume/ 구조에 `summary.html`, `assets/resume.pdf`, `npm run pdf`를 추가합니다.
+- `resume/roadmap.md`의 PDF 관련 체크박스(110행, 137행)는 확인한 뒤에만 완료로 바꾸고, 확인하지 못한 항목은 메모를 남깁니다.
+
+### 주요 파일
+- 신규: `resume/summary.html`, `resume/assets/resume.pdf`
+- 수정: `resume/index.html`(Hero 링크), `resume/src/input.css`, `resume/dist/output.css`, `resume/package.json`, `CLAUDE.md`, `README.md`, `resume/roadmap.md`
+
+### 검증
+1. `resume/`에서 `python3 -m http.server 8000` → `summary.html`을 브라우저로 열어 스크린샷으로 이미지와 레이아웃을 비교하고, 콘솔 에러와 폰트·프로필 로드 실패가 없는지 봅니다.
+2. `npm run pdf` → `assets/resume.pdf`가 A4 1쪽이고 검정 배경과 한글이 제대로 들어갔는지 PDF를 읽어 확인합니다.
+3. `index.html` Hero의 링크가 `assets/resume.pdf`(200 응답)를 `download` 속성과 함께 가리키는지 확인합니다.
+4. `npm run build` 후 `git diff --stat dist/output.css`로 기존 스타일이 그대로인지 확인합니다.

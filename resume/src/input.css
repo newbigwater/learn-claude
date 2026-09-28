@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* summary.html은 Tailwind를 쓰지 않는 독립 A4 페이지이므로 클래스 스캔에서 제외 */
+@source not "../summary.html";
+
 /* 클래스 기반 다크모드 (html.dark) */
 @custom-variant dark (&:where(.dark, .dark *));
 

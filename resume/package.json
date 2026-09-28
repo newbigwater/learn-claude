@@ -4,7 +4,8 @@
   "description": "개발자 웹 이력서",
   "scripts": {
     "dev": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
-    "build": "tailwindcss -i ./src/input.css -o ./dist/output.css --minify"
+    "build": "tailwindcss -i ./src/input.css -o ./dist/output.css --minify",
+    "pdf": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --no-pdf-header-footer --virtual-time-budget=5000 --print-to-pdf=assets/resume.pdf summary.html"
   },
   "author": "",
   "license": "ISC",

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>김개발 | 이력서 요약본</title>
+    <meta name="description" content="프론트엔드 개발자 김개발의 A4 1장 이력서 요약본입니다." />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+
+    <!-- 이 페이지는 Tailwind(dist/output.css)를 쓰지 않는 독립 A4 페이지입니다.
+         output.css의 @media print가 배경을 흰색으로 강제해 검정 디자인과 충돌하기 때문입니다. -->
+    <style>
+      :root {
+        --bg: #0d0d0d;
+        --line: #ffffff;
+        --accent: #e3a35a;
+        --text: #ffffff;
+        --text-muted: #d4d4d4;
+        --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      body {
+        background: #2b2b2b;
+        color: var(--text);
+        font-family: var(--font-sans);
+        font-size: 12px;
+        line-height: 1.5;
+        word-break: keep-all;
+      }
+
+      ul {
+        list-style: none;
+      }
+
+      /* ---------- 화면용 도구 막대 (인쇄 시 숨김) ---------- */
+      .toolbar {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        padding: 16px;
+      }
+
+      .toolbar a {
+        border: 1px solid #666;
+        border-radius: 8px;
+        padding: 8px 16px;
+        color: #fff;
+        font-size: 14px;
+        text-decoration: none;
+      }
+
+      .toolbar a:hover,
+      .toolbar a:focus-visible {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* ---------- A4 시트 ---------- */
+      .sheet {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 5mm;
+        width: 210mm;
+        height: 297mm;
+        margin: 0 auto 24px;
+        padding: 9mm 12mm;
+        overflow: hidden;
+        background-color: var(--bg);
+        /* 대리석 느낌의 옅은 대각선 결 */
+        background-image:
+          linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.05) 39%, transparent 41%),
+          linear-gradient(62deg, transparent 58%, rgba(255, 255, 255, 0.04) 59%, transparent 60.5%),
+          linear-gradient(140deg, transparent 20%, rgba(255, 255, 255, 0.03) 21%, transparent 23%);
+      }
+
+      /* ---------- 공통 카드 ---------- */
+      .card {
+        border: 2px solid var(--line);
+        border-radius: 22px;
+        padding: 5mm 7mm;
+      }
+
+      .card h2 {
+        font-size: 21px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        line-height: 1.2;
+      }
+
+      .accent {
+        color: var(--accent);
+        font-weight: 500;
+      }
+
+      .muted {
+        color: var(--text-muted);
+      }
+
+      .icon {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      /* ---------- Header ---------- */
+      .header {
+        position: relative;
+        padding-top: 1mm;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 46px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        line-height: 1.15;
+      }
+
+      .header h1 span {
+        color: var(--accent);
+        font-weight: 500;
+      }
+
+      .header .role {
+        margin-top: 2px;
+        font-size: 16px;
+        letter-spacing: 0.4em;
+      }
+
+      .header .icon-monitor {
+        position: absolute;
+        top: 2mm;
+        left: 6mm;
+        width: 17mm;
+        height: 17mm;
+      }
+
+      /* ---------- 학력 · 사진 · 연락처 ---------- */
+      .top-row {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 46mm;
+        min-height: 48mm;
+      }
+
+      .top-row .card {
+        padding: 5mm 8mm;
+      }
+
+      .top-row .card h2 {
+        margin-bottom: 3mm;
+      }
+
+      .photo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 46mm;
+        height: 46mm;
+        transform: translate(-50%, -50%);
+        border: 2px solid var(--line);
+        border-radius: 50%;
+        background: #222;
+        /* 카드 테두리가 사진 가장자리에서 끊겨 보이도록 배경색 링을 둔다 */
+        box-shadow: 0 0 0 2.2mm var(--bg);
+        object-fit: cover;
+      }
+
+      .edu .year {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      .edu .degree {
+        margin-top: 2.5mm;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .contact li {
+        padding: 0.9mm 0;
+        font-size: 13.5px;
+        letter-spacing: 0.03em;
+      }
+
+      /* ---------- 소개 ---------- */
+      .about {
+        text-align: center;
+      }
+
+      .about p {
+        margin-top: 3mm;
+        padding: 0 2mm;
+        font-size: 13px;
+        line-height: 1.65;
+      }
+
+      /* ---------- 성과 · 노트북 · 자격증 ---------- */
+      .mid-row {
+        display: grid;
+        grid-template-columns: 1fr 46mm 1fr;
+        gap: 4mm;
+        align-items: stretch;
+      }
+
+      .mid-row .card h2 {
+        margin-bottom: 3.5mm;
+        font-size: 18px;
+      }
+
+      .stats {
+        display: flex;
+        justify-content: space-between;
+        gap: 2mm;
+        text-align: center;
+      }
+
+      .stats strong {
+        display: block;
+        color: var(--accent);
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .stats span {
+        font-size: 11.5px;
+      }
+
+      .laptop {
+        align-self: center;
+        width: 100%;
+        height: auto;
+        color: var(--line);
+      }
+
+      .certs li {
+        padding: 0.7mm 0;
+        font-size: 13px;
+      }
+
+      .certs time {
+        display: block;
+        font-size: 11.5px;
+      }
+
+      /* ---------- 기술 스택 ---------- */
+      .skills h2 {
+        margin-bottom: 3mm;
+        text-align: center;
+      }
+
+      .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4mm;
+        text-align: center;
+      }
+
+      .skills-grid svg {
+        width: 11mm;
+        height: 11mm;
+        color: var(--accent);
+      }
+
+      .skills-grid h3 {
+        margin: 1.5mm 0 2mm;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .skills-grid li {
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      /* ---------- 경력 ---------- */
+      .work {
+        flex: 1;
+      }
+
+      .work h2 {
+        margin-bottom: 4mm;
+        text-align: center;
+      }
+
+      .work-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8mm;
+      }
+
+      .work-grid h3 {
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .work-grid .period {
+        margin-bottom: 2.5mm;
+        font-size: 13.5px;
+      }
+
+      .work-grid ul {
+        padding-left: 4.5mm;
+        list-style: disc;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .work-grid li {
+        margin-bottom: 1mm;
+      }
+
+      /* ---------- 인쇄 / PDF ---------- */
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      @media print {
+        html,
+        body {
+          width: 210mm;
+          height: 297mm;
+          overflow: hidden;
+          background: var(--bg);
+        }
+
+        .toolbar {
+          display: none;
+        }
+
+        .sheet {
+          margin: 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ==================== Toolbar (화면 전용) ==================== -->
+    <nav class="toolbar" aria-label="요약본 도구">
+      <a href="index.html">← 이력서로 돌아가기</a>
+      <a href="assets/resume.pdf" download="김개발_이력서_요약본.pdf">PDF 다운로드</a>
+    </nav>
+    <!-- ==================== // Toolbar (화면 전용) ==================== -->
+
+    <main class="sheet">
+      <!-- ==================== Header ==================== -->
+      <header class="header">
+        <svg class="icon icon-monitor" viewBox="0 0 64 64" aria-hidden="true" style="color: var(--line)">
+          <rect x="4" y="6" width="56" height="38" rx="2" />
+          <path d="M26 24l-6 5 6 5M38 24l6 5-6 5M35 21l-6 16" />
+          <path d="M24 44v8M40 44v8M16 52h32" />
+        </svg>
+        <h1>김<span>개발</span></h1>
+        <p class="role">FRONTEND DEVELOPER</p>
+      </header>
+      <!-- ==================== // Header ==================== -->
+
+      <!-- ==================== Education / Photo / Contact ==================== -->
+      <section class="top-row" aria-label="학력과 연락처">
+        <div class="card edu">
+          <h2><span class="accent">학력</span></h2>
+          <p class="year">2018.03 – 2022.02</p>
+          <p class="degree">컴퓨터공학과 학사</p>
+          <p class="accent">샘플대학교</p>
+        </div>
+        <img class="photo" src="assets/images/profile.svg" alt="김개발의 프로필 사진" width="166" height="166" />
+        <div class="card contact">
+          <h2>연락<span class="accent">처</span></h2>
+          <ul>
+            <li>hello@example.com</li>
+            <li>github.com/example</li>
+            <li>velog.io/@example</li>
+            <li>linkedin.com/in/example</li>
+          </ul>
+        </div>
+      </section>
+      <!-- ==================== // Education / Photo / Contact ==================== -->
+
+      <!-- ==================== About ==================== -->
+      <section class="card about" aria-labelledby="about-title">
+        <h2 id="about-title">자기 <span class="accent">소개</span></h2>
+        <p class="muted">
+          3년차 프론트엔드 개발자로, 복잡한 문제를 단순하고 유지보수하기 쉬운 코드로 풀어내는 일에 보람을 느낍니다.
+          웹 표준과 접근성을 지키면서도 빠르게 동작하는 화면을 만드는 것이 목표입니다.
+          “읽기 쉬운 코드가 좋은 코드다.”
+        </p>
+      </section>
+      <!-- ==================== // About ==================== -->
+
+      <!-- ==================== Highlights / Certifications ==================== -->
+      <section class="mid-row" aria-label="주요 성과와 자격증">
+        <div class="card">
+          <h2 style="color: var(--accent)">주요 성과</h2>
+          <ul class="stats">
+            <li><strong>3년+</strong><span>실무 경력</span></li>
+            <li><strong>12개</strong><span>완료 프로젝트</span></li>
+            <li><strong>95+</strong><span>접근성 점수</span></li>
+          </ul>
+        </div>
+        <svg class="laptop icon" viewBox="0 0 120 84" role="img" aria-label="노트북 그림" style="stroke-width: 2">
+          <rect x="18" y="4" width="84" height="56" rx="4" />
+          <rect x="23" y="9" width="74" height="46" rx="1" fill="#000" />
+          <path d="M6 66h108l-8 12a4 4 0 0 1-3.4 2H17.4a4 4 0 0 1-3.4-2z" />
+          <path d="M50 70h20" />
+        </svg>
+        <div class="card">
+          <h2>자격<span class="accent">증</span></h2>
+          <ul class="certs">
+            <li>정보처리기사 <time class="muted">2021.11 취득</time></li>
+            <li>웹 접근성 전문가 과정 <time class="muted">2023.06 이수</time></li>
+          </ul>
+        </div>
+      </section>
+      <!-- ==================== // Highlights / Certifications ==================== -->
+
+      <!-- ==================== Skills ==================== -->
+      <section class="card skills" aria-labelledby="skills-title">
+        <h2 id="skills-title">기술 <span class="accent">스택</span></h2>
+        <div class="skills-grid">
+          <div>
+            <svg class="icon" viewBox="0 0 32 32" aria-hidden="true">
+              <rect x="3" y="5" width="26" height="18" rx="2" />
+              <path d="M13 11l-3 3 3 3M19 11l3 3-3 3M11 27h10M16 23v4" />
+            </svg>
+            <h3>Frontend</h3>
+            <ul class="muted">
+              <li>HTML5 · CSS3 · JavaScript (ES6+)</li>
+              <li>TypeScript · React · TailwindCSS</li>
+            </ul>
+          </div>
+          <div>
+            <svg class="icon" viewBox="0 0 32 32" aria-hidden="true">
+              <rect x="4" y="5" width="24" height="8" rx="2" />
+              <rect x="4" y="19" width="24" height="8" rx="2" />
+              <path d="M9 9h.01M9 23h.01M14 9h10M14 23h10" />
+            </svg>
+            <h3>Backend</h3>
+            <ul class="muted">
+              <li>Node.js · Express</li>
+              <li>PostgreSQL · REST API</li>
+            </ul>
+          </div>
+          <div>
+            <svg class="icon" viewBox="0 0 32 32" aria-hidden="true">
+              <circle cx="16" cy="16" r="4" />
+              <path d="M16 3v4M16 25v4M3 16h4M25 16h4M6.8 6.8l2.8 2.8M22.4 22.4l2.8 2.8M6.8 25.2l2.8-2.8M22.4 9.6l2.8-2.8" />
+            </svg>
+            <h3>Tools</h3>
+            <ul class="muted">
+              <li>Git / GitHub · Figma</li>
+              <li>Vite · Jest · Docker</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <!-- ==================== // Skills ==================== -->
+
+      <!-- ==================== Experience ==================== -->
+      <section class="card work" aria-labelledby="work-title">
+        <h2 id="work-title">경력 <span class="accent">사항</span></h2>
+        <div class="work-grid">
+          <div>
+            <h3>샘플테크 · 프론트엔드 개발자</h3>
+            <p class="accent period">2024.03 – 현재</p>
+            <ul class="muted">
+              <li>디자인 시스템 구축으로 UI 개발 시간 40% 단축</li>
+              <li>메인 페이지 렌더링 최적화로 LCP 3.2s → 1.6s 개선</li>
+              <li>접근성 개선으로 Lighthouse 접근성 95점 달성</li>
+            </ul>
+          </div>
+          <div>
+            <h3>예시소프트 · 웹 개발자</h3>
+            <p class="accent period">2022.01 – 2024.02</p>
+            <ul class="muted">
+              <li>사내 관리자 페이지 신규 개발 및 유지보수</li>
+              <li>REST API 연동 및 공통 컴포넌트 라이브러리 작성</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <!-- ==================== // Experience ==================== -->
+    </main>
+  </body>
+</html>
