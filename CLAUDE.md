@@ -19,5 +19,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 작업 시 주의사항
 
 - `resume/`에서 HTML/JS에 새 Tailwind 클래스를 추가하면 `npm run build`로 `dist/output.css`를 다시 생성해 함께 커밋합니다.
+- `resume/index.html`은 한 파일 안에서 `<!-- ==================== Hero ==================== -->` … `<!-- ==================== // Hero ==================== -->`처럼 시작/끝 주석으로 블록(Header, Hero, About 등)을 구분합니다. 새 섹션을 추가할 때도 같은 형식을 따릅니다.
 - `.claude/settings.local.json`(로컬 권한 설정)은 커밋하지 않습니다.
 - 진행 현황은 각 폴더의 `roadmap.md`에 체크박스로 관리하며, 확인하지 못한 항목은 완료로 표시하지 않고 메모를 남깁니다.
