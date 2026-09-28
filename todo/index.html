@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo</title>
+    <meta name="description" content="카테고리, 태그, 우선순위, 마감일로 할 일을 관리하는 Todo 앱" />
+    <script>
+      // 렌더링 전에 다크모드를 적용해 깜빡임 방지
+      (function () {
+        var saved = null;
+        try {
+          saved = localStorage.getItem("theme");
+        } catch (e) {}
+        var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (saved === "dark" || (!saved && prefersDark)) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
