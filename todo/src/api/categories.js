@@ -1,10 +1,9 @@
-import { request } from "./client";
+import { insert, list, remove, update } from "./client.js";
 
-export const fetchCategories = () => request("/categories");
+export const fetchCategories = () => list("categories");
 
-export const createCategory = (data) => request("/categories", { method: "POST", body: data });
+export const createCategory = (data) => insert("categories", data);
 
-export const patchCategory = (id, patch) =>
-  request(`/categories/${id}`, { method: "PATCH", body: patch });
+export const patchCategory = (id, patch) => update("categories", id, patch);
 
-export const deleteCategory = (id) => request(`/categories/${id}`, { method: "DELETE" });
+export const deleteCategory = (id) => remove("categories", id);

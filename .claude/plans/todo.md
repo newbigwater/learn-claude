@@ -93,3 +93,66 @@ todo/
 ## 검증
 - `todo/roadmap.md`가 위 목차와 사용자 요구사항(React, JSON 백엔드, CRUD·카테고리/태그·우선순위/마감일)을 모두 포함하는지 확인
 - README 폴더 목록 링크(`./todo`)가 정상인지 `git status`/미리보기로 확인
+
+---
+
+## 2026-09-28 Live Server용 빌드 없는 구조로 재설계
+
+### Context
+`todo/`는 Vite(JSX 변환, `@tailwindcss/vite`)와 json-server(3001)가 있어야 동작해서, VS Code Live Server(`http://127.0.0.1:5500/todo/index.html`)로 열면 아무것도 뜨지 않습니다. 원인은 네 가지입니다. 브라우저가 `.jsx`를 실행하지 못하고, 절대 경로 `/src/main.jsx`가 404가 나고, CSS가 생성되지 않고, API 서버가 없습니다.
+**빌드 없는 구조로 재작성하고 데이터는 localStorage로 교체**해서, Live Server로 `todo/index.html`만 열면 모든 기능이 동작하게 합니다. npm, Vite, 서버는 필요 없어집니다.
+
+### 설계
+
+#### 1. 런타임 로딩 (`todo/index.html`)
+- **import map**으로 bare import를 CDN에 연결하고 버전은 고정합니다(구현 시 실제 최신 19.x, 3.x 확인).
+  - `react` → `https://esm.sh/react@19.x.x`
+  - `react-dom/client` → `https://esm.sh/react-dom@19.x.x/client?external=react` (React 인스턴스 중복 방지)
+  - `htm` → `https://esm.sh/htm@3.x.x`
+- **Tailwind v4 브라우저 빌드**: `<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4">`. `src/index.css`의 내용(`@custom-variant dark`, `@theme` 폰트, `@layer base`)은 `<style type="text/tailwindcss">`로 옮기고 `index.css`는 삭제합니다.
+- 다크모드 FOUC 방지 인라인 스크립트는 그대로 둡니다.
+- 진입점은 `<script type="module" src="./src/main.js">`. **상대 경로**여야 `/todo/` 하위 경로에서도 동작합니다.
+- 선택: `<noscript>`와 CDN 로딩 실패 안내 문구.
+
+#### 2. JSX → htm 변환
+- 새 파일 `src/lib/html.js`: `import htm from "htm"; import { createElement } from "react"; export const html = htm.bind(createElement);`
+- `.jsx`를 모두 `.js`로 바꿉니다(`main`, `App`, `components/*` 7개).
+  - `<Comp a={x} />` → `<${Comp} a=${x} />`, 닫는 태그는 `<//>`
+  - `{...handlers}` → `...${handlers}`, `{/* 주석 */}` → `<!-- 주석 -->`
+  - 조건부/목록 렌더링은 `${cond && html`...`}` 형태
+- **모든 상대 import에 `.js` 확장자**를 붙입니다(확장자 생략 해석은 Vite만 함). hooks/utils/api 파일도 해당됩니다.
+- `main.js`의 `import "./index.css"`는 제거합니다.
+- 컴포넌트 로직, `memo`, `useCallback`, `useContentMemo`, `todosRef`는 그대로 유지하고 문법만 바꿉니다.
+
+#### 3. 데이터 계층: localStorage (`src/api/`)
+- `src/api/client.js`를 localStorage 저장소로 바꿉니다.
+  - 키 `todo-app:db`, 값 `{ todos, categories }`.
+  - `loadDb()`: 값이 없으면 `src/data/seed.js`(기존 `db.json` 내용, `$schema` 제외)로 초기화. 파싱 실패 시 Error.
+  - `saveDb(db)`: `setItem` 실패(용량 초과, 사생활 보호 모드) 시 Error.
+  - `createId()`: `crypto.randomUUID()`, 없으면 `Date.now()` + 난수 (json-server처럼 문자열 id).
+  - 공용 헬퍼 `list(name)`, `insert(name, data)`, `update(name, id, patch)`, `remove(name, id)`: 모두 **Promise 반환**, 없는 id면 에러.
+- `src/api/todos.js`, `src/api/categories.js`는 함수 이름·시그니처를 유지하고 내부만 헬퍼로 바꿉니다(`createdAt`/`updatedAt` 로직 유지).
+  → hooks와 컴포넌트는 영향을 받지 않고, 낙관적 업데이트·되돌리기·`unassignCategory`도 그대로 동작합니다.
+- 오류 문구의 "API 서버(npm run api)" 안내는 저장소 기준으로 바꿉니다.
+- "예시 데이터로 초기화" 버튼은 이번 범위에서 넣지 않고, 초기화 방법(localStorage 키 삭제)을 문서에 적습니다.
+
+#### 4. 삭제할 파일
+`vite.config.js`, `package.json`, `package-lock.json`, `db.json`, `src/index.css`, `todo/node_modules/`, `todo/dist/`(둘 다 gitignore 대상)
+
+#### 5. 문서 갱신
+- `CLAUDE.md` "todo/ 아키텍처": 실행(Live Server로 `todo/index.html`), 검증(빌드 없이 브라우저 확인), import map/htm/Tailwind 브라우저 빌드, `.js` 확장자 규칙, 데이터(localStorage 키 `todo-app:db`, 시드 `src/data/seed.js`)로 바꾸고 json-server·`vite.config`(`$schema`, `watch.ignored`) 항목은 삭제합니다. 리렌더링·대비·날짜 규칙은 유지합니다.
+- `README.md` 폴더 표 설명: "React(CDN, htm) + Tailwind v4 브라우저 빌드 + localStorage".
+- `todo/roadmap.md`: 기술 스택·데이터 모델을 갱신하고 재설계 항목을 체크박스로 추가합니다. 확인하지 못한 항목은 메모와 함께 미완료로 둡니다.
+
+### 주요 파일
+- 수정: `todo/index.html`, `todo/src/api/{client,todos,categories}.js`, `todo/src/hooks/*.js`(import 경로만)
+- 변환(.jsx→.js): `todo/src/main.js`, `todo/src/App.js`, `todo/src/components/{CategorySidebar,FilterBar,PriorityBadge,TagInput,TodoForm,TodoItem,TodoList}.js`
+- 신규: `todo/src/lib/html.js`, `todo/src/data/seed.js`
+
+### 검증
+1. 저장소 루트에서 `python3 -m http.server 5500`으로 Live Server와 같은 경로 구조를 만들고(Live Server는 VS Code 확장이라 직접 실행 불가), `http://127.0.0.1:5500/todo/index.html`을 열어 콘솔 에러(404, 모듈 해석 오류, React 중복 경고)가 없는지 확인합니다.
+2. 첫 실행에서 시드 할 일 3개와 카테고리가 표시되는지 확인합니다.
+3. 할 일 추가/수정/완료 토글/삭제, 카테고리 추가/이름 변경/삭제(소속 할 일이 미분류로 바뀌는지), 태그 필터, 검색, 정렬을 확인합니다.
+4. 새로고침 후에도 데이터가 유지되는지(localStorage) 확인합니다.
+5. 다크모드 토글, 새로고침 시 깜빡임 없음, 좁은 화면에서 사이드바 접힘, Tailwind 스타일 적용을 확인합니다.
+6. 실제 Live Server로도 한 번 열어 봐 달라고 안내합니다.

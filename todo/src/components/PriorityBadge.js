@@ -1,4 +1,5 @@
-import { PRIORITY_LABEL } from "../utils/todos";
+import { html } from "../lib/html.js";
+import { PRIORITY_LABEL } from "../utils/todos.js";
 
 const STYLES = {
   high: "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-200",
@@ -7,9 +8,9 @@ const STYLES = {
 };
 
 export default function PriorityBadge({ priority }) {
-  return (
-    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STYLES[priority]}`}>
-      우선순위 {PRIORITY_LABEL[priority]}
+  return html`
+    <span className=${`rounded-full px-2 py-0.5 text-xs font-medium ${STYLES[priority]}`}>
+      우선순위 ${PRIORITY_LABEL[priority]}
     </span>
-  );
+  `;
 }
