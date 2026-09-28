@@ -85,15 +85,27 @@ resume/
 - [x] `@theme`로 브랜드 색상, 폰트(예: Pretendard) 등 디자인 토큰 정의
 - [x] 공통 레이아웃 설정 (`max-w-*`, `mx-auto`, 섹션 간격)
 - [x] 고정 상단 네비게이션 바 스타일링
-- [x] Hero 섹션: 중앙 정렬, 프로필 이미지, CTA 버튼
+- [x] Hero 섹션: 프로필 이미지, CTA 버튼 (리뉴얼 후 2단 구성, Phase 2-b 참고)
 - [x] Skills 섹션: 카테고리별 배지/그리드 레이아웃
 - [x] Experience 섹션: 세로 타임라인 UI
 - [x] Projects 섹션: 카드 그리드 (`grid-cols-1 md:grid-cols-2 lg:grid-cols-3`), hover 효과
 - [x] 반응형 점검 (모바일 / 태블릿 / 데스크톱) — 모바일(388px)·데스크톱(1800px) 확인, 태블릿은 미확인
 - [x] 다크모드용 `dark:` 스타일 적용
 
+### Phase 2-b. 디자인 리뉴얼 (모던 다크 스타일)
+- [x] 디자인 토큰 교체: 보라(violet) `brand-*` + 다크 표면색 `night-*`, 컨테이너 `max-w-6xl`
+- [x] 간격 규칙 통일: 섹션 `py-20/24`, 섹션 헤더→본문 `mb-12`, 그리드 `gap-6`, 카드 `rounded-2xl`
+- [x] 공통 컴포넌트 추가: `.section-head`, `.eyebrow`, `.card-hover`, `.icon-tile`, `.icon-btn`, `.glass`, `.dot-grid`, `.text-gradient`
+- [x] Header: 로고, 8개 메뉴(홈 포함, `lg` 이상 가로 메뉴), 현재 섹션 점 표시, 요약본 PDF 버튼
+- [x] Hero 2단 구성: 인사말·이름(그라디언트)·CTA·SNS / 원형 프로필 + 떠 있는 통계 카드, 아래 통계 바 4칸
+- [x] About(소개 + 개발 철학 카드), Skills(아이콘 카드 + 칩), Experience(카드형 타임라인), Projects(그라디언트 썸네일 카드), Education, SNS, Contact(보라 CTA 카드) 재구성
+- [x] 다크 기본(저장값이 `light`가 아니면 다크), 라이트 모드도 같은 디자인으로 확인
+- [x] 한글 단어 단위 줄바꿈(`break-keep`)
+- [x] 검증: 데스크톱(1800px)·1024px·375px 화면 확인(가로 스크롤 없음), 다크/라이트 텍스트 대비 측정(다크 전부 통과, 라이트는 그라디언트 CTA 카드만 측정 불가), 토글·필터·PDF 링크 동작, 콘솔 오류 없음 — 768px 태블릿 폭과 Safari/Firefox는 미확인
+- 참고: 통계 바의 "15개 사용 기술"은 Skills 배지 수(6+4+5)이고, `summary.html`은 내용이 바뀌지 않아 그대로 두었습니다.
+
 ### Phase 3. JavaScript 인터랙션
-- [x] **다크모드 토글**: 시스템 설정 감지 + `localStorage` 저장
+- [x] **다크모드 토글**: 다크 기본(리뉴얼 후, 시스템 설정은 따르지 않음) + `localStorage` 저장
 - [x] **모바일 햄버거 메뉴**: 열기/닫기, 링크 클릭 시 자동 닫힘
 - [x] **스무스 스크롤** 및 **현재 섹션 네비게이션 하이라이트** (`IntersectionObserver`)
 - [x] **스크롤 등장 애니메이션** (fade-in / slide-up)
@@ -105,7 +117,7 @@ resume/
 - [x] **접근성**: 색상 대비, 키보드 포커스 표시, ARIA 레이블, 스킵 링크 — 색상 대비 수치 측정은 미실시
 - [x] **SEO**: `title`, `description`, Open Graph / Twitter 카드 메타 태그, 파비콘 (OG 이미지는 미포함)
 - [x] **성능**: CSS minify — 이미지는 SVG 플레이스홀더 1개뿐이라 WebP 변환·`loading="lazy"`는 미적용 (실제 사진 교체 시 적용)
-- [x] **인쇄 스타일**: Tailwind `print:` variant로 A4 출력 최적화 — 스타일 작성만 완료, 인쇄 미리보기는 미확인
+- [x] **인쇄 스타일**: Tailwind `print:` variant로 A4 출력 최적화 — 리뉴얼 후 headless Chrome PDF의 1쪽만 확인(라이트로 출력, 그라디언트 글자는 단색), 나머지 쪽은 미확인
 - [ ] 크로스 브라우저 테스트 (Chrome, Safari, Firefox, Edge) — Chrome만 확인, 나머지 브라우저는 직접 확인 필요
 - [x] 이력서 요약본 PDF 준비 및 다운로드 링크 연결: `summary.html`(A4 1장, 검정·골드 디자인)을 `npm run pdf`로 `assets/resume.pdf`에 출력하고 Hero 링크에 연결 — PDF 1쪽·A4·링크 200 응답은 확인, 실제 클릭 다운로드 동작은 미확인
 

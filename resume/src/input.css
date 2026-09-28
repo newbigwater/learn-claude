@@ -3,22 +3,34 @@
 /* summary.html은 Tailwind를 쓰지 않는 독립 A4 페이지이므로 클래스 스캔에서 제외 */
 @source not "../summary.html";
 
-/* 클래스 기반 다크모드 (html.dark) */
-@custom-variant dark (&:where(.dark, .dark *));
+/* 클래스 기반 다크모드 (html.dark). 다크가 기본이라 인쇄할 때는 dark 스타일을 꺼서 라이트로 출력 */
+@custom-variant dark {
+  @media not print {
+    &:where(.dark, .dark *) {
+      @slot;
+    }
+  }
+}
 
 /* 디자인 토큰 */
 @theme {
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
     "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 
-  --color-brand-50: #eef2ff;
-  --color-brand-100: #e0e7ff;
-  --color-brand-200: #c7d2fe;
-  --color-brand-400: #818cf8;
-  --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
-  --color-brand-700: #4338ca;
-  --color-brand-900: #312e81;
+  /* 포인트 컬러 (violet) */
+  --color-brand-50: #f3f0ff;
+  --color-brand-100: #e8e1ff;
+  --color-brand-200: #d3c7ff;
+  --color-brand-400: #9d85ff;
+  --color-brand-500: #7c5cff;
+  --color-brand-600: #6541f0;
+  --color-brand-700: #5232d4;
+  --color-brand-900: #2e1d7a;
+
+  /* 다크 표면색: 950 배경 → 900 교차 섹션 → 850 카드 */
+  --color-night-850: #12121f;
+  --color-night-900: #0b0b15;
+  --color-night-950: #07070d;
 }
 
 @layer base {
@@ -26,8 +38,13 @@
     scroll-behavior: smooth;
   }
 
+  html.dark {
+    color-scheme: dark;
+  }
+
+  /* break-keep: 한글이 글자 중간이 아니라 단어 단위로 줄바꿈되게 */
   body {
-    @apply bg-white text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-200;
+    @apply break-keep bg-white text-slate-800 antialiased dark:bg-night-950 dark:text-slate-200;
   }
 
   /* 키보드 포커스 표시 */
@@ -43,58 +60,115 @@
 }
 
 @layer components {
+  /* ---------- 레이아웃 (간격 규칙: 섹션 py-20/24, 헤더→본문 mb-12, 그리드 gap-6) ---------- */
   .container-page {
-    @apply mx-auto w-full max-w-5xl px-4 sm:px-6;
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
   }
 
-  /* 고정 네비게이션 높이만큼 앵커 위치 보정 */
+  /* 고정 네비게이션 높이(h-18)만큼 앵커 위치 보정 */
   .section {
-    @apply scroll-mt-16 py-16 sm:py-20;
+    @apply scroll-mt-18 py-20 sm:py-24;
+  }
+
+  .section-alt {
+    @apply bg-slate-50 dark:bg-night-900;
+  }
+
+  .section-head {
+    @apply mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between;
+  }
+
+  .eyebrow {
+    @apply mb-3 text-sm font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-400;
   }
 
   .section-title {
-    @apply mb-10 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-white;
+    @apply text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white;
   }
 
-  .section-title::after {
-    content: "";
-    @apply mt-3 block h-1 w-12 rounded-full bg-brand-500;
-  }
-
+  /* ---------- 버튼 ---------- */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition duration-200;
+  }
+
+  .btn-sm {
+    @apply px-4 py-2;
   }
 
   .btn-primary {
-    @apply bg-brand-600 text-white hover:bg-brand-700;
+    @apply bg-brand-600 text-white shadow-lg shadow-brand-600/25 hover:bg-brand-700 hover:shadow-brand-600/40;
   }
 
   .btn-outline {
-    @apply border border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800;
+    @apply border border-slate-300 text-slate-800 hover:bg-slate-100 dark:border-white/15 dark:text-slate-100 dark:hover:bg-white/5;
+  }
+
+  /* 보라 배경(.cta-card) 위에서 쓰는 버튼 */
+  .btn-light {
+    @apply bg-white text-brand-700 hover:bg-brand-50;
+  }
+
+  .btn-ghost-light {
+    @apply border border-white/40 text-white hover:bg-white/10;
+  }
+
+  .icon-btn {
+    @apply flex size-11 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition-colors hover:border-brand-500/50 hover:bg-brand-500/10 hover:text-brand-600 dark:border-white/10 dark:text-slate-300 dark:hover:text-brand-400;
+  }
+
+  /* ---------- 카드 / 칩 ---------- */
+  .card {
+    @apply rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/8 dark:bg-night-850 dark:shadow-none;
+  }
+
+  .card-hover {
+    @apply transition duration-300 hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-lg hover:shadow-brand-600/10 dark:hover:border-brand-400/40;
+  }
+
+  /* 반투명 유리 카드 (Hero의 떠 있는 통계 카드) */
+  .glass {
+    @apply rounded-2xl border border-slate-200 bg-white/80 shadow-xl backdrop-blur-md dark:border-white/10 dark:bg-night-850/70;
+  }
+
+  .icon-tile {
+    @apply flex size-12 shrink-0 items-center justify-center rounded-xl;
   }
 
   .badge {
-    @apply inline-block rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700 dark:bg-brand-900/40 dark:text-brand-200;
+    @apply inline-flex items-center rounded-lg border border-brand-100 bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300;
   }
 
-  .card {
-    @apply rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900;
+  /* ---------- 장식 ---------- */
+  .dot-grid {
+    background-image: radial-gradient(currentColor 1.5px, transparent 1.5px);
+    background-size: 16px 16px;
   }
 
+  .text-gradient {
+    @apply bg-linear-to-r from-brand-600 to-fuchsia-600 bg-clip-text text-transparent dark:from-brand-400 dark:to-fuchsia-400;
+  }
+
+  /* ---------- 네비게이션 / 필터 ---------- */
   .nav-link {
-    @apply rounded-md px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-400;
+    @apply relative rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-white;
   }
 
   .nav-link[aria-current="true"] {
     @apply text-brand-600 dark:text-brand-400;
   }
 
+  /* 현재 섹션 표시 점 (가로 메뉴인 lg 이상에서만. 세로 메뉴에서는 글자색으로 충분) */
+  .nav-link[aria-current="true"]::after {
+    content: "";
+    @apply absolute bottom-0.5 left-1/2 hidden size-1 -translate-x-1/2 rounded-full bg-brand-600 lg:block dark:bg-brand-400;
+  }
+
   .filter-btn {
-    @apply rounded-full border border-slate-300 px-4 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800;
+    @apply rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5;
   }
 
   .filter-btn[aria-pressed="true"] {
-    @apply border-brand-600 bg-brand-600 text-white hover:bg-brand-700 dark:border-brand-500 dark:bg-brand-500;
+    @apply border-brand-600 bg-brand-600 text-white hover:bg-brand-700 dark:border-brand-600 dark:text-white dark:hover:bg-brand-700;
   }
 
   /* 스크롤 등장 애니메이션 (JS가 동작할 때만 숨김 처리) */
@@ -110,10 +184,14 @@
     .js .reveal {
       @apply translate-y-0 opacity-100 transition-none;
     }
+
+    .card-hover:hover {
+      translate: none;
+    }
   }
 }
 
-/* 인쇄 (A4) */
+/* 인쇄 (A4) — dark 변형이 인쇄에서 꺼지므로 라이트 스타일로 출력됨 */
 @media print {
   @page {
     size: A4;
@@ -139,6 +217,23 @@
   .js .reveal {
     opacity: 1 !important;
     transform: none !important;
+    translate: none !important;
+  }
+
+  /* 그라디언트 글자는 인쇄 시 배경이 빠져 투명해지므로 단색으로 */
+  .text-gradient {
+    background: none !important;
+    color: #4338ca !important;
+  }
+
+  /* 보라 CTA 카드는 배경 없이 검정 글자로 */
+  .cta-card {
+    background: none !important;
+    box-shadow: none !important;
+  }
+
+  .cta-card * {
+    color: #000 !important;
   }
 
   a[href^="http"]:not(.no-print-url)::after {

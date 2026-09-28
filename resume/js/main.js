@@ -123,4 +123,5 @@ filterButtons.forEach((button) => {
 });
 
 // ---------- 인쇄 / PDF 저장 ----------
+// (다크 상태로 인쇄해도 라이트로 나오도록 하는 처리는 input.css의 @custom-variant dark가 담당)
 document.getElementById("print-btn").addEventListener("click", () => window.print());

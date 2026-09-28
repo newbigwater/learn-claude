@@ -94,3 +94,96 @@ Hero의 "이력서 PDF 다운로드" 버튼은 `assets/resume.pdf`를 가리키�
 2. `npm run pdf` → `assets/resume.pdf`가 A4 1쪽이고 검정 배경과 한글이 제대로 들어갔는지 PDF를 읽어 확인합니다.
 3. `index.html` Hero의 링크가 `assets/resume.pdf`(200 응답)를 `download` 속성과 함께 가리키는지 확인합니다.
 4. `npm run build` 후 `git diff --stat dist/output.css`로 기존 스타일이 그대로인지 확인합니다.
+
+---
+
+## 2026-09-28 디자인 리뉴얼 (모던 다크 스타일)
+
+
+### Context
+`resume/index.html`은 기능(다크모드, 섹션 하이라이트, 필터, 인쇄)은 갖췄지만 디자인이 평범합니다. 가운데 정렬 Hero, `max-w-5xl` 좁은 폭, 섹션마다 다른 간격, 단순한 카드 때문입니다. 사용자가 준 참고 이미지(짙은 남색 배경, 보라 포인트, 2단 Hero와 원형 그라디언트 프로필, 떠 있는 통계 카드, 통계 바, 유리 느낌 카드)처럼 **모던하고 세련된 디자인**으로 바꾸고, **레이아웃과 간격을 일관되게** 맞춥니다.
+
+사용자 결정:
+- **다크 기본 + 토글 유지**: 처음 방문하면 다크로 시작합니다. 라이트 모드도 같은 디자인 언어로 다듬습니다.
+- **구조까지 재구성**: 섹션, 콘텐츠, `id`는 유지하고 배치를 참고 이미지처럼 바꿉니다.
+- **Skills는 배지 유지**: % 막대는 넣지 않고(새 수치를 만들지 않음) 아이콘 카드와 칩으로 개선합니다.
+
+
+### 수정 파일
+- `resume/src/input.css`: 토큰, 컴포넌트, 인쇄 스타일
+- `resume/index.html`: 전 섹션 마크업
+- `resume/js/main.js`: 인쇄 시 라이트 전환만 추가
+- `resume/dist/output.css`: 빌드 결과, 함께 커밋
+- `CLAUDE.md`(resume 아키텍처 절), `resume/roadmap.md`
+- `summary.html`과 `assets/resume.pdf`는 **건드리지 않습니다**. 콘텐츠가 바뀌지 않기 때문입니다.
+
+#### 1. 디자인 시스템 (`src/input.css`)
+
+**토큰(`@theme`)**
+- `brand-*`를 참고 이미지의 보라(violet) 계열로 바꿉니다. 대략 `500 #7c5cff`, `600 #6a45f5`, `400 #9580ff`이고 50~900 단계를 둡니다. 클래스 이름은 그대로라 기존 마크업이 유지됩니다. 대비 조건: `brand-600`은 흰 배경에서, `brand-400`은 다크 배경에서 4.5:1 이상이어야 합니다.
+- 다크 표면색 `night-*`를 추가합니다. `950 #07070d`(배경), `900 #0c0c16`(교차 섹션), `850 #12121f`(카드).
+- 폰트는 Pretendard를 그대로 씁니다. 제목은 `font-extrabold tracking-tight`로 인상을 줍니다.
+
+**간격 규칙(일관성의 핵심)**
+| 요소 | 값 |
+| --- | --- |
+| 컨테이너 `.container-page` | `max-w-6xl px-4 sm:px-6 lg:px-8` |
+| 헤더 높이 | `h-18`, 섹션 `scroll-mt-18` |
+| 섹션 `.section` | `py-20 sm:py-24` (모든 섹션 동일) |
+| 섹션 헤더 → 본문 | `mb-12` 고정 |
+| 그리드 간격 | `gap-6` 통일 |
+| 카드 안쪽 | `p-6` (SNS처럼 작은 카드만 `!p-5`) |
+| 모서리 | 카드 `rounded-2xl`, 버튼·아이콘 타일 `rounded-xl`, 칩 `rounded-lg` |
+- 섹션 배경은 번갈아 씁니다. 기본은 `night-950`, 교차 섹션은 `bg-slate-50 dark:bg-night-900`입니다.
+
+**컴포넌트(`@layer components`)**. 기존 이름은 유지하고 스타일만 바꿉니다.
+- `.section-head`: flex, 왼쪽 제목 묶음과 오른쪽 부가 요소(필터 등). `.eyebrow`: 작은 대문자 보라 라벨(예: `ABOUT`). `.section-title`: `text-3xl sm:text-4xl`. 기존 `::after` 막대는 eyebrow로 대체합니다.
+- `.btn`: `rounded-xl px-6 py-3`. `.btn-primary`: 보라 + `shadow-lg shadow-brand-600/30` 글로우. `.btn-outline`: 다크는 `border-white/15 hover:bg-white/5`. `.btn-sm`: 헤더용.
+- `.card`: `rounded-2xl`, 다크는 `bg-night-850 border-white/8`. `.card-hover`(신규): 살짝 떠오르며 보라 테두리.
+- `.icon-tile`(신규): `size-12 rounded-xl` 아이콘 배경.
+- `.badge`: 칩 형태. 다크는 `bg-white/5 border-white/10 text-slate-300`, 라이트는 `bg-slate-100 text-slate-700`.
+- `.nav-link[aria-current]`: 보라 글자 + 아래에 `::after` 점 표시(참고 이미지의 Home 표시).
+- `.filter-btn`: 칩 형태로 맞춤.
+- `.dot-grid`(신규): radial-gradient 점 패턴(Hero 장식). `.text-gradient`(신규): 보라→자홍 그라디언트 글자.
+- `.reveal` 규칙은 그대로 둡니다.
+
+**인쇄**: `.text-gradient`는 인쇄 때 배경이 빠져 글자가 투명해지므로 `@media print`에서 단색으로 되돌립니다. 장식 요소(점 패턴, 글로우, 떠 있는 카드)에는 `print:hidden`을 붙입니다.
+
+### 2. 섹션별 마크업 (`index.html`)
+블록 주석 형식, `id`, `aria-labelledby`, SVG 스프라이트 재사용 규칙은 유지합니다. 아이콘 SVG는 인라인으로 추가합니다.
+
+- **Header**: `</>` 아이콘 + 김**개발**(보라) 로고. 메뉴 맨 앞에 `홈(#hero)` 링크를 추가해 8개가 되므로, 데스크톱 메뉴 전환 기준을 `md`에서 **`lg`**로 올립니다(`#nav-menu`의 `lg:static lg:flex …`, `#menu-toggle`의 `lg:hidden`). 오른쪽에는 테마 토글과 `요약본 PDF` 다운로드 버튼(`.btn-outline .btn-sm`, 다운로드 아이콘, `sm` 이상에서 표시)을 둡니다.
+- **Hero**: `lg:grid-cols-2`, 배경에 흐릿한 보라 글로우를 둡니다.
+  - 왼쪽: `👋 안녕하세요, 저는` 알약 라벨, `h1#hero-title` "김**개발**"(`text-5xl sm:text-6xl lg:text-7xl`, 성은 흰색, 이름은 `.text-gradient`), `프론트엔드 개발자`(`text-2xl`), 소개 문단, CTA(`연락하기 →` primary / `프로젝트 보기` outline), "Follow me" 줄(스프라이트 github, linkedin, x, blog 아이콘 재사용).
+  - 오른쪽: 원형 그라디언트(`from-brand-500 to-brand-700`) 위에 `profile.svg`, 뒤에 `.dot-grid`, 떠 있는 유리 카드 2개(3년+ 실무 경력 / 12개 프로젝트)를 둡니다. 떠 있는 카드는 아래 통계 바와 내용이 겹치므로 `aria-hidden="true"`로 처리하고 `sm` 이상에서만 보여 줍니다.
+  - **통계 바**(Hero 안쪽 아래): 카드 1개를 4칸으로 나누고(`sm:grid-cols-2 lg:grid-cols-4`, 칸 사이 구분선) 색 아이콘 타일을 둡니다. 3년+ 실무 경력(보라 `</>`), 12개 완료 프로젝트(emerald 체크), 95+ Lighthouse 접근성(amber 상장), 15개 사용 기술(pink, Skills 배지 6+4+5를 센 값이라 새 사실이 아님). 색 클래스는 전체 문자열로 씁니다.
+- **About**: 기존 통계 목록은 통계 바로 옮겨 중복을 없앱니다. `lg:grid-cols-5`로 나눠 왼쪽 3칸에 소개 문단, 오른쪽 2칸에 "개발 철학" 인용 카드(큰 따옴표 장식, 보라 테두리 강조)를 둡니다.
+- **Skills**(교차 배경): 카드 3개. 각 카드에 아이콘 타일(Frontend 모니터 / Backend 서버 / Tools 렌치), 제목, "6개 기술" 같은 보조 줄, 칩 목록을 둡니다.
+- **Experience**: `ol` 타임라인은 유지합니다. 각 항목은 카드이고, 보라 점 + 그라디언트 세로선, 기간은 `.badge` 형태로 둡니다. `lg`에서는 기간 칸 + 내용 칸 2열입니다.
+- **Projects**(교차 배경): `.section-head` 오른쪽에 필터 버튼을 둡니다(`md` 이상 오른쪽 정렬). 카드 위쪽에 이미지 없이 만든 썸네일을 둡니다. 카드마다 다른 그라디언트, 브라우저 창 점 3개, 가운데 아이콘으로 구성하며 `aria-hidden`입니다. 카드는 `!p-0 overflow-hidden`, 본문은 `p-6`. 링크는 `GitHub ↗`, `데모 ↗` 형태입니다. `data-category`와 `#project-list`는 유지합니다.
+- **Education**: 카드 2개에 아이콘 타일(학사모 / 인증서)을 추가합니다.
+- **SNS**(교차 배경): 카드 구조와 브랜드 호버 색은 유지합니다. 아이콘 배경을 `rounded-xl`로 바꾸고, 오른쪽에 호버 때 움직이는 `↗` 화살표를 추가합니다.
+- **Contact**: 가운데에 큰 CTA 카드(`rounded-3xl`, 보라 그라디언트 + 글로우)를 둡니다. eyebrow `CONTACT`, `h2#contact-title`, 안내 문구, 버튼은 메일(흰 배경)과 `#print-btn` 인쇄 버튼(흰 테두리)입니다. `#print-btn`은 Hero에서 이곳으로 옮깁니다. `main.js`는 id로 찾으므로 영향이 없습니다.
+- **Footer / 맨 위로 버튼**: 로고 + 저작권 + 아이콘 + 맨 위로. 테두리는 `dark:border-white/5`, 맨 위로 버튼은 `rounded-xl` + 글로우입니다.
+
+### 3. 동작 변경
+- **다크 기본**: `<head>` 인라인 스크립트 조건을 `saved !== "light"`이면 `dark`로 바꿉니다(시스템 설정 무시, 저장값 우선). `main.js`의 토글 저장 로직은 그대로입니다. `meta theme-color`는 `#07070d`로 바꿉니다.
+- **인쇄 시 라이트 전환**(`main.js`): 다크가 기본이 되면 인쇄 때 흰 배경 위에 다크 카드와 흰 글자가 찍히는 문제가 생깁니다. `beforeprint`에서 `dark` 클래스를 잠시 빼고 `afterprint`에서 원래대로 돌립니다(저장값은 건드리지 않음).
+
+### 4. 문서
+- `CLAUDE.md`의 resume 절: 컴포넌트 목록에 `.section-head`, `.eyebrow`, `.card-hover`, `.icon-tile`, `.dot-grid`, `.text-gradient`를 추가하고, 다크 기본(`saved !== "light"`), 메뉴 기준 `lg`, `beforeprint` 라이트 전환, `.text-gradient`의 인쇄 예외를 적습니다.
+- `resume/roadmap.md`: "디자인 리뉴얼" 항목을 체크박스로 추가하고, 확인하지 못한 항목에는 메모를 남깁니다.
+
+### 검증
+1. `resume/`에서 `npm run build`가 오류 없이 끝나는지 확인합니다.
+2. `python3 -m http.server 8000`을 띄우고 Chrome MCP로 `http://localhost:8000`을 엽니다. 1440px, 768px, 375px에서 다크와 라이트 각각 스크린샷을 찍어 참고 이미지와 비교하고, 가로 스크롤이 없는지와 간격이 일관된지 봅니다.
+3. 동작 확인
+   - 첫 방문 다크: `localStorage`를 지운 뒤 새로고침합니다.
+   - 토글 유지와 새로고침 후 FOUC가 없는지 봅니다.
+   - 스크롤할 때 메뉴 하이라이트 점이 이동하는지 봅니다(`홈` 포함).
+   - `lg` 미만에서 햄버거 열기/닫기, Esc, 링크 클릭 시 닫힘을 확인합니다.
+   - 프로젝트 필터, 맨 위로 버튼, reveal 애니메이션을 확인합니다.
+   - 요약본 PDF 다운로드 링크를 확인합니다.
+   - 콘솔 오류가 없는지 봅니다.
+4. 인쇄: 다크 상태에서 인쇄 미리보기를 열어 흰 배경, 검정 글자, 그라디언트 글자가 제대로 보이는지 확인합니다.
+5. 대비: 보조 텍스트(`slate-600` / `dark:slate-400`)와 보라 링크 색이 4.5:1 이상인지 JS로 계산하거나 DevTools로 확인합니다.
