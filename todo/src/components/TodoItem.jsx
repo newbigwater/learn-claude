@@ -49,7 +49,7 @@ export default function TodoItem({ todo, category, categories, tagSuggestions, a
         />
 
         <div className="min-w-0 flex-1">
-          <p className={`break-words font-medium ${todo.completed ? "text-slate-400 line-through dark:text-slate-500" : ""}`}>
+          <p className={`break-words font-medium ${todo.completed ? "text-slate-500 line-through dark:text-slate-400" : ""}`}>
             {todo.title}
           </p>
           {todo.memo && <p className="mt-1 whitespace-pre-wrap break-words text-sm text-slate-500 dark:text-slate-400">{todo.memo}</p>}

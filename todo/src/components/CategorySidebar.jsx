@@ -69,13 +69,13 @@ function CategoryRow({ category, count, selected, onSelect, onRename, onRemove }
       >
         <span className={`size-2.5 shrink-0 rounded-full ${colorOf(category.color).dot}`} aria-hidden="true" />
         <span className="truncate">{category.name}</span>
-        <span className="ml-auto text-xs text-slate-400">{count}</span>
+        <span className="ml-auto text-xs text-slate-600 dark:text-slate-400">{count}</span>
       </button>
       <button
         type="button"
         onClick={() => setMode("edit")}
         aria-label={`${category.name} 이름 수정`}
-        className="rounded-md px-1.5 py-1 text-xs text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+        className="rounded-md px-1.5 py-1 text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
       >
         수정
       </button>
@@ -83,7 +83,7 @@ function CategoryRow({ category, count, selected, onSelect, onRename, onRemove }
         type="button"
         onClick={() => setMode("confirm")}
         aria-label={`${category.name} 삭제`}
-        className="rounded-md px-1.5 py-1 text-xs text-slate-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10"
+        className="rounded-md px-1.5 py-1 text-xs text-slate-600 dark:text-slate-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10"
       >
         삭제
       </button>
@@ -116,7 +116,7 @@ export default function CategorySidebar({
   return (
     <aside aria-label="카테고리와 태그" className="space-y-6">
       <section>
-        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">카테고리</h2>
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">카테고리</h2>
         {error && (
           <p role="alert" className="mb-2 text-xs text-red-600 dark:text-red-400">
             {error}
@@ -126,7 +126,7 @@ export default function CategorySidebar({
           <li>
             <button type="button" onClick={() => onSelect("all")} aria-pressed={selected === "all"} className={rowClass(selected === "all")}>
               <span>전체</span>
-              <span className="text-xs text-slate-400">{counts.all}</span>
+              <span className="text-xs text-slate-600 dark:text-slate-400">{counts.all}</span>
             </button>
           </li>
           {categories.map((category) => (
@@ -143,7 +143,7 @@ export default function CategorySidebar({
           <li>
             <button type="button" onClick={() => onSelect("none")} aria-pressed={selected === "none"} className={rowClass(selected === "none")}>
               <span>미분류</span>
-              <span className="text-xs text-slate-400">{counts.none}</span>
+              <span className="text-xs text-slate-600 dark:text-slate-400">{counts.none}</span>
             </button>
           </li>
         </ul>
@@ -179,9 +179,9 @@ export default function CategorySidebar({
       </section>
 
       <section>
-        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">태그</h2>
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">태그</h2>
         {tags.length === 0 ? (
-          <p className="text-xs text-slate-400">아직 태그가 없습니다.</p>
+          <p className="text-xs text-slate-600 dark:text-slate-400">아직 태그가 없습니다.</p>
         ) : (
           <ul className="flex flex-wrap gap-1.5">
             {tags.map(({ tag, count }) => (

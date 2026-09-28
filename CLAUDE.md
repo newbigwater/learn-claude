@@ -38,6 +38,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **`vite.config.js`의 `server.watch.ignored: ["**/db.json"]`을 지우지 마세요**: 없으면 API가 `db.json`에 쓸 때마다 Vite가 페이지를 새로고침해 입력 중인 폼과 요청 흐름이 끊깁니다.
 - **낙관적 업데이트**: `useTodos`의 수정·삭제는 화면을 먼저 바꾸고 실패하면 이전 값으로 되돌립니다. 추가는 서버가 id를 만들어야 하므로 응답 후 반영합니다.
 - **카테고리 삭제**: json-server는 연쇄 처리를 하지 않으므로 `unassignCategory`로 소속 할 일을 `categoryId: null`로 바꾼 뒤(모두 성공해야) 카테고리를 삭제합니다.
+- **사이드바는 좁은 화면에서 접이식**: `App.jsx`의 `sidebarOpen` 상태로 `lg` 미만에서만 토글하고, `lg` 이상에서는 항상 표시합니다(`hidden lg:block`).
+- **텍스트 색은 대비 4.5:1 이상으로**: 보조 텍스트는 라이트 `text-slate-600`(이상), 다크 `dark:text-slate-400`을 씁니다. `text-slate-400`/`500` 단독 사용은 기준 미달이었습니다.
 - **Tailwind 클래스는 전체 문자열로 작성**: `utils/colors.js`처럼 클래스 이름을 동적으로 조합하지 않습니다(스캔되지 않음).
 - **날짜는 `YYYY-MM-DD` 문자열**: `toISOString()`은 UTC라 자정 무렵 하루가 어긋나므로 `utils/date.js`의 `todayString()`(로컬 기준)을 씁니다.
 

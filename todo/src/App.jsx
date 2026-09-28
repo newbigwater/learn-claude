@@ -27,6 +27,7 @@ export default function App() {
 
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [sort, setSort] = useState("created");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const patchFilters = (patch) => setFilters((current) => ({ ...current, ...patch }));
 
@@ -76,19 +77,34 @@ export default function App() {
       </header>
 
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[16rem_1fr]">
-        <CategorySidebar
-          categories={categories}
-          counts={counts}
-          selected={filters.categoryId}
-          onSelect={(id) => patchFilters({ categoryId: id })}
-          onAdd={addCategory}
-          onRename={updateCategory}
-          onRemove={handleRemoveCategory}
-          tags={tags}
-          activeTag={filters.tag}
-          onTagSelect={(tag) => patchFilters({ tag: filters.tag === tag ? null : tag })}
-          error={categoryError}
-        />
+        <div>
+          {/* 좁은 화면에서는 사이드바를 접어 두고, lg 이상에서는 항상 표시 */}
+          <button
+            type="button"
+            onClick={() => setSidebarOpen((open) => !open)}
+            aria-expanded={sidebarOpen}
+            aria-controls="sidebar"
+            className="flex w-full items-center justify-between rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium dark:border-slate-700 dark:bg-slate-900 lg:hidden"
+          >
+            <span>카테고리 · 태그</span>
+            <span aria-hidden="true">{sidebarOpen ? "▲" : "▼"}</span>
+          </button>
+          <div id="sidebar" className={sidebarOpen ? "mt-3 block" : "hidden lg:block"}>
+            <CategorySidebar
+              categories={categories}
+              counts={counts}
+              selected={filters.categoryId}
+              onSelect={(id) => patchFilters({ categoryId: id })}
+              onAdd={addCategory}
+              onRename={updateCategory}
+              onRemove={handleRemoveCategory}
+              tags={tags}
+              activeTag={filters.tag}
+              onTagSelect={(tag) => patchFilters({ tag: filters.tag === tag ? null : tag })}
+              error={categoryError}
+            />
+          </div>
+        </div>
 
         <main className="min-w-0 space-y-6">
           <section aria-label="할 일 추가" className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
@@ -115,7 +131,7 @@ export default function App() {
           />
 
           {loading ? (
-            <p role="status" className="py-12 text-center text-slate-500">
+            <p role="status" className="py-12 text-center text-slate-600 dark:text-slate-400">
               불러오는 중…
             </p>
           ) : loadError ? (
