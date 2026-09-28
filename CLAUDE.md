@@ -28,19 +28,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **표시/숨김은 `hidden` 속성 사용**: 프로젝트 필터(`data-category`)와 맨 위로 버튼이 `hidden` 속성을 토글하며, Tailwind preflight의 `[hidden]`이 `display`보다 우선하므로 `flex` 등과 충돌하지 않습니다.
 - **SNS 아이콘은 SVG 스프라이트**: `index.html` 상단의 `<symbol id="icon-*">`를 SNS 카드와 푸터가 `<use href="#icon-*">`로 재사용합니다. 플랫폼을 추가하려면 symbol, SNS 카드, 푸터 아이콘을 모두 추가합니다.
 - **인쇄 스타일**: `input.css`의 `@media print`와 마크업의 `print:hidden`을 함께 사용합니다.
-- **샘플 데이터**: 이름, URL(`example`), 연락처는 모두 더미입니다. Hero의 `assets/resume.pdf` 링크는 파일이 아직 없습니다.
+- **요약본 PDF는 별도 페이지에서 생성**: `summary.html`은 Tailwind(`dist/output.css`)를 쓰지 않는 독립 A4 1장 페이지(인라인 CSS)입니다. `output.css`의 `@media print`가 배경을 흰색으로 강제해 검정 디자인과 충돌하기 때문이며, `input.css`의 `@source not`으로 스캔에서도 제외합니다. `index.html`의 내용을 바꾸면 `summary.html`도 맞춘 뒤 `npm run pdf`(headless Chrome, macOS 경로)로 `assets/resume.pdf`를 다시 만들어 함께 커밋합니다. 시트가 `overflow: hidden`이라 내용이 넘쳐도 1쪽으로 나오므로, 수정 후 하단이 잘리지 않았는지 확인합니다.
+- **샘플 데이터**: 이름, URL(`example`), 연락처는 모두 더미입니다. `assets/resume.pdf`는 더미 내용으로 만든 요약본입니다.
 
-## todo/ 아키텍처 (React + Vite + json-server)
+## todo/ 아키텍처 (빌드 없는 React + htm + localStorage)
 
-- **구조**: `src/api/`(fetch 래퍼, `client.js`의 `API_URL`이 유일한 기본 URL) → `src/hooks/`(`useTodos`, `useCategories`, `useTheme`) → `src/components/`. 컴포넌트에서 `fetch`를 직접 호출하지 않습니다. 필터·정렬·날짜 계산은 `src/utils/`의 순수 함수입니다.
-- **실행**: `todo/`에서 `npm run dev:all`(Vite 5173 + json-server 3001 동시 실행). API만 띄우려면 `npm run api`. 검증 도구가 없으므로 `npm run build` 통과와 브라우저 동작 확인으로 검증합니다.
-- **json-server는 v1 베타**: `id`는 서버가 만드는 문자열이고, 쓸 때마다 `db.json`에 `$schema` 키를 추가합니다. 테스트로 `db.json`이 바뀌면 시드 데이터로 되돌리고 커밋합니다.
-- **`vite.config.js`의 `server.watch.ignored: ["**/db.json"]`을 지우지 마세요**: 없으면 API가 `db.json`에 쓸 때마다 Vite가 페이지를 새로고침해 입력 중인 폼과 요청 흐름이 끊깁니다.
-- **낙관적 업데이트**: `useTodos`의 수정·삭제는 화면을 먼저 바꾸고 실패하면 이전 값으로 되돌립니다. 추가는 서버가 id를 만들어야 하므로 응답 후 반영합니다.
-- **카테고리 삭제**: json-server는 연쇄 처리를 하지 않으므로 `unassignCategory`로 소속 할 일을 `categoryId: null`로 바꾼 뒤(모두 성공해야) 카테고리를 삭제합니다.
-- **사이드바는 좁은 화면에서 접이식**: `App.jsx`의 `sidebarOpen` 상태로 `lg` 미만에서만 토글하고, `lg` 이상에서는 항상 표시합니다(`hidden lg:block`).
+- **실행**: 빌드도 npm도 없습니다. VS Code Live Server로 `todo/index.html`을 열면 됩니다. (`http://127.0.0.1:5500/todo/index.html`) 라이브러리를 CDN에서 불러오므로 인터넷 연결이 필요합니다. 검증 도구가 없으므로 브라우저에서 직접 확인합니다.
+- **로딩 방식**: `index.html`의 import map이 `react`, `react-dom/client`, `htm`을 esm.sh에 연결하고(버전 고정), Tailwind v4는 `@tailwindcss/browser`가 런타임에 만듭니다. Tailwind 설정(`@custom-variant dark`, `@theme`, `@layer base`)은 `index.html`의 `<style type="text/tailwindcss">`에 있습니다. 다크모드 FOUC 방지 인라인 스크립트, `useTheme`(localStorage 키 `theme`), `@custom-variant dark`는 함께 동작하므로 한 곳만 바꾸지 마세요.
+- **JSX가 없습니다**: 컴포넌트는 `src/lib/html.js`의 `html` 태그 템플릿으로 씁니다. 컴포넌트는 `<${Comp} prop=${x} />`, 닫는 태그는 `<//>`, 속성은 `className`/`htmlFor`(HTML의 `class`가 아님), 전개는 `...${obj}`, 조건부는 `${cond && html`...`}`입니다.
+- **상대 import에는 `.js` 확장자를 붙입니다**: 확장자 생략은 Vite만 해 주던 동작이라 브라우저에서는 404가 납니다. import 경로는 `./`·`../` 상대 경로만 쓰고, 파일을 옮기면 경로를 함께 고칩니다.
+- **구조**: `src/api/`(저장소 래퍼, `client.js`가 유일한 저장소 접근점) → `src/hooks/`(`useTodos`, `useCategories`, `useTheme`) → `src/components/`. 컴포넌트에서 `localStorage`를 직접 읽고 쓰지 않습니다. 필터·정렬·날짜 계산은 `src/utils/`의 순수 함수입니다.
+- **데이터는 localStorage**: 키 `todo-app:db`에 `{ todos, categories }`를 JSON으로 저장하고, 없으면 `src/data/seed.js`의 예시 데이터로 시작합니다. `client.js`의 `list`/`insert`/`update`/`remove`는 Promise를 반환하고 실패 시 Error를 던지므로 훅은 서버 API처럼 다룹니다. 초기화는 이 키를 지우고 새로고침합니다. 나중에 백엔드로 바꾸면 `client.js`만 교체합니다.
+- **낙관적 업데이트**: `useTodos`의 수정·삭제는 화면을 먼저 바꾸고 실패하면 이전 값으로 되돌립니다. 추가는 저장소가 id(`crypto.randomUUID()`)를 만들어야 하므로 응답 후 반영합니다.
+- **카테고리 삭제**: 저장소는 연쇄 처리를 하지 않으므로 `unassignCategory`로 소속 할 일을 `categoryId: null`로 바꾼 뒤(모두 성공해야) 카테고리를 삭제합니다.
+- **리렌더링 최적화 규칙**: `TodoItem`, `TodoForm`, `CategorySidebar`, `FilterBar`, `TodoList`는 `memo`이므로 props를 매 렌더 새로 만들면 효과가 사라집니다. `App`에서 내려주는 콜백은 `useCallback`(현재 filters가 필요하면 함수형 `setState`)으로, 개수·태그 같은 파생 객체는 `useContentMemo`로 identity를 유지하고, `useTodos`/`useCategories`의 액션은 최신 목록을 `todosRef`로 읽어 `todos`에 의존하지 않게 합니다. 새 props를 인라인 화살표 함수나 새 객체로 넘기지 마세요. (검색 1글자 입력은 FilterBar·TodoList만, 완료 토글은 해당 TodoItem·TodoList만 다시 그려야 정상)
+- **사이드바는 좁은 화면에서 접이식**: `App.js`의 `sidebarOpen` 상태로 `lg` 미만에서만 토글하고, `lg` 이상에서는 항상 표시합니다(`hidden lg:block`).
 - **텍스트 색은 대비 4.5:1 이상으로**: 보조 텍스트는 라이트 `text-slate-600`(이상), 다크 `dark:text-slate-400`을 씁니다. `text-slate-400`/`500` 단독 사용은 기준 미달이었습니다.
-- **Tailwind 클래스는 전체 문자열로 작성**: `utils/colors.js`처럼 클래스 이름을 동적으로 조합하지 않습니다(스캔되지 않음).
+- **Tailwind 클래스는 전체 문자열로 작성**: `utils/colors.js`처럼 클래스 이름을 동적으로 조합하지 않습니다. 브라우저 빌드는 DOM에 나타난 클래스를 읽으므로 동작은 하지만, 전체 문자열로 써야 검색·리팩터링이 안전합니다.
 - **날짜는 `YYYY-MM-DD` 문자열**: `toISOString()`은 UTC라 자정 무렵 하루가 어긋나므로 `utils/date.js`의 `todayString()`(로컬 기준)을 씁니다.
 
 ## 작업 시 주의사항
