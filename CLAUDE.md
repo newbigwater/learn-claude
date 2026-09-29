@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 프로젝트 현황
 
-저장소 루트(`claude-code-mastery/`)가 git 저장소이며, 학습 결과를 폴더 단위로 추가합니다. 폴더 목록, 구조, 실행 명령어는 README.md를 참고하세요. 새 폴더를 추가하면 README.md의 폴더 목록도 함께 갱신합니다.
+저장소 루트(`claude-code-mastery/`)가 git 저장소이며, 학습 결과를 폴더 단위로 추가합니다. 폴더 목록, 구조, 실행 명령어는 README.md를 참고하세요. 새 프로젝트 폴더를 추가하면 README.md에 ① 폴더 목록 표의 한 줄 ② 프로젝트별 상세 섹션(`## 폴더명/` 아래 스택·구조·실행)을 함께 추가합니다. 표만 갱신하고 섹션을 빼먹지 않도록 주의하세요. 프로젝트 폴더의 `doc/tech-stack.md`와 이 문서의 아키텍처 섹션(`## 폴더명/ 아키텍처`)도 함께 만듭니다.
 
 @README.md
 
