@@ -35,7 +35,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## todo/ 아키텍처 (빌드 없는 React + htm + localStorage)
 
 - **실행**: 빌드도 npm도 없습니다. VS Code Live Server로 `todo/index.html`을 열면 됩니다. (`http://127.0.0.1:5500/todo/index.html`) 라이브러리를 CDN에서 불러오므로 인터넷 연결이 필요합니다. 검증 도구가 없으므로 브라우저에서 직접 확인합니다.
-- **로딩 방식**: `index.html`의 import map이 `react`, `react-dom/client`, `htm`을 esm.sh에 연결하고(버전 고정), Tailwind v4는 `@tailwindcss/browser`가 런타임에 만듭니다. Tailwind 설정(`@custom-variant dark`, `@theme`, `@layer base`)은 `index.html`의 `<style type="text/tailwindcss">`에 있습니다. 다크모드 FOUC 방지 인라인 스크립트, `useTheme`(localStorage 키 `theme`), `@custom-variant dark`는 함께 동작하므로 한 곳만 바꾸지 마세요.
+- **로딩 방식**: `index.html`의 import map이 `react`, `react-dom/client`, `htm`을 esm.sh에 연결하고(버전 고정), Tailwind v4는 `@tailwindcss/browser`가 런타임에 만듭니다. Tailwind 설정(`@custom-variant dark`, `@theme`, `@layer base`)은 `index.html`의 `<style type="text/tailwindcss">`에 있습니다. 다크모드 FOUC 방지 인라인 스크립트, `useTheme`(localStorage 키 `theme`), `@custom-variant dark`는 함께 동작하므로 한 곳만 바꾸지 마세요. `resume/`와 달리 저장값이 없으면 **OS 설정(`prefers-color-scheme`)을 따릅니다.**
 - **JSX가 없습니다**: 컴포넌트는 `src/lib/html.js`의 `html` 태그 템플릿으로 씁니다. 컴포넌트는 `<${Comp} prop=${x} />`, 닫는 태그는 `<//>`, 속성은 `className`/`htmlFor`(HTML의 `class`가 아님), 전개는 `...${obj}`, 조건부는 `${cond && html`...`}`입니다.
 - **상대 import에는 `.js` 확장자를 붙입니다**: 확장자 생략은 Vite만 해 주던 동작이라 브라우저에서는 404가 납니다. import 경로는 `./`·`../` 상대 경로만 쓰고, 파일을 옮기면 경로를 함께 고칩니다.
 - **구조**: `src/api/`(저장소 래퍼, `client.js`가 유일한 저장소 접근점) → `src/hooks/`(`useTodos`, `useCategories`, `useTheme`) → `src/components/`. 컴포넌트에서 `localStorage`를 직접 읽고 쓰지 않습니다. 필터·정렬·날짜 계산은 `src/utils/`의 순수 함수입니다.
@@ -50,8 +50,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 작업 시 주의사항
 
-- **계획서는 `.claude/plans/`에 저장하고, 파일명은 대상 폴더명으로 짓습니다.** (예: `.claude/plans/resume.md`, `.claude/plans/todo.md`) 저장 위치는 `.claude/settings.local.json`의 `plansDirectory`로 지정되어 있으며, 각 폴더 안에 `plan/` 폴더를 따로 만들지 않습니다. `roadmap.md`는 폴더 루트에 그대로 둡니다.
+- **계획서는 `.claude/plans/`에 저장하고, 파일명은 대상 폴더명으로 짓습니다.** (예: `.claude/plans/resume.md`, `.claude/plans/todo.md`) 저장 위치는 `.claude/settings.json`의 `plansDirectory`로 지정되어 있으며, 각 폴더 안에 `plan/` 폴더를 따로 만들지 않습니다. `roadmap.md`는 폴더 루트에 그대로 둡니다.
 - `resume/`에서 HTML/JS에 새 Tailwind 클래스를 추가하면 `npm run build`로 `dist/output.css`를 다시 생성해 함께 커밋합니다.
 - `resume/index.html`은 한 파일 안에서 `<!-- ==================== Hero ==================== -->` … `<!-- ==================== // Hero ==================== -->`처럼 시작/끝 주석으로 블록(Header, Hero, About 등)을 구분합니다. 새 섹션을 추가할 때도 같은 형식을 따릅니다.
-- `.claude/settings.local.json`(로컬 권한 설정)은 커밋하지 않습니다.
+- 각 프로젝트의 `doc/tech-stack.md`는 기술 스택 설명서입니다. 다크모드, 저장소 구조, 빌드·실행 방식, 사용 라이브러리를 바꾸면 해당 문서도 함께 고칩니다. 형식은 첫 줄 `#Tag`(Footnote로 정의한 용어) → 빈 줄 → `# 상위 토픽` → `## NN. 제목` → `### NN.MM. 소절` → 하단 `## Footnotes` 순서입니다.
+- `.claude/settings.json`에는 프로젝트 공용 설정(`plansDirectory` 등)만 둡니다. 개인 설정(`permissions.defaultMode`, `outputStyle` 등)과 로컬 권한은 `.claude/settings.local.json`에 두며, 이 파일은 커밋하지 않습니다.
+- `.obsidian/`(Obsidian 편집기 설정)은 `.gitignore` 대상이므로 커밋하지 않습니다.
 - 진행 현황은 각 폴더의 `roadmap.md`에 체크박스로 관리하며, 확인하지 못한 항목은 완료로 표시하지 않고 메모를 남깁니다.

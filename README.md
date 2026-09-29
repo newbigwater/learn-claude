@@ -6,8 +6,8 @@ Claude Code를 학습하며 만든 결과물을 폴더 단위로 정리하는 �
 
 | 폴더 | 설명 |
 | --- | --- |
-| [`resume/`](./resume) | 개발자 웹 이력서 (HTML5 + TailwindCSS v4 + Vanilla JS 정적 페이지) |
-| [`todo/`](./todo) | Todo 앱 (React + htm + TailwindCSS v4, 빌드 없이 Live Server로 실행, localStorage 저장). 구현 완료 (재설계 후 일부 항목 재검증 필요) — [`roadmap.md`](./todo/roadmap.md) |
+| [`resume/`](./resume) | 개발자 웹 이력서 (HTML5 + TailwindCSS v4 + Vanilla JS 정적 페이지). 기술 스택 설명서 — [`doc/tech-stack.md`](./resume/doc/tech-stack.md) |
+| [`todo/`](./todo) | Todo 앱 (React + htm + TailwindCSS v4, 빌드 없이 Live Server로 실행, localStorage 저장). 구현 완료 (재설계 후 일부 항목 재검증 필요) — [`roadmap.md`](./todo/roadmap.md), 기술 스택 설명서 — [`doc/tech-stack.md`](./todo/doc/tech-stack.md) |
 
 > 새 폴더를 추가하면 위 표에 한 줄씩 추가합니다.
 
@@ -30,6 +30,7 @@ resume/
 ├── js/main.js        # 다크모드, 모바일 메뉴, 섹션 하이라이트, 스크롤 애니메이션, 프로젝트 필터
 ├── assets/images/    # 프로필, 파비콘 (SVG 플레이스홀더)
 ├── assets/resume.pdf # 요약본 PDF (npm run pdf로 생성, Hero 다운로드 버튼이 연결)
+├── doc/tech-stack.md # 사용한 기술 스택 설명서 (HTML5, Tailwind v4, Vanilla JS, 인쇄/PDF 등)
 └── roadmap.md        # 개발 로드맵 및 진행 현황
 ```
 
